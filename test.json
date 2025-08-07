@@ -1,0 +1,69 @@
+{
+  "competitions":[
+    [
+      "id": 401772510,
+      "guid": 814adeb4-496f-375d-8ed4-539db0892a20,
+      "uid": 's:20~l:28~e:401772510~c:401772510',
+      "date": "2025-09-05T00:20Z",
+      "attendance": 0,
+      "type": [
+        "id":"1",
+        "text":"Standard",
+        "abbreviation":"STD",
+        "slug": "standard",
+        "type": "standard"
+      ],
+      "gameSource":[
+        "id": "1",
+        "description":"basic/manual",
+        "state":"basic",
+      ],
+      "boxscoreSource":[
+        "id":"0",
+        "description":"none",
+        "state": "none",
+      ],
+      "venue": [
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/venues/3806?lang=en&region=us",
+        "id": "3806",
+        "guid": "a1e68291-b8a7-3428-9754-7bfc568e5d71",
+        "fullName": "Lincoln Financial Field",
+        "address": [
+          "city": "Philadelphia",
+          "state": "PA",
+          "zipCode": "19148",
+          "country": "USA",
+        ],
+        "grass": true,
+        "indoor": false,
+        "images": [
+           [
+            "href":"https://a.espncdn.com/i/venues/nfl/day/3806.jpg",
+            "width":2000,
+            "height":1125,
+           ]
+        ]
+     ],
+      "competitors": [
+         [
+          "$ref":"http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/401772510/competitions/401772510/competitors/21?lang=en&region=us",
+          "id": "21",
+          "uid": "s:20~l:28~t:21",
+          "type": "team",
+          "order": 0,
+          "homeAway": "home",
+          "team": [
+            "$ref":"http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/teams/21?lang=en&region=us",
+          ],
+          "score": [
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/401772510/competitions/401772510/competitors/21/score?lang=en&region=us",
+          ],
+          "record": [
+            "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/types/2/teams/21/record?lang=en&region=us",
+          ],
+        ],
+       "status":[
+        "$ref": "http://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/401772510/competitions/401772510/status?lang=en&region=us",
+      ]
+    ]
+}
