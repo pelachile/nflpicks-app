@@ -10,10 +10,12 @@ class WeeklyLeaderboard extends Component
 {
     public int $selectedWeek;
     public int $selectedSeason;
+    public int $selectedSeasonType;
     public $weeklyScores = [];
 
     public function mount()
     {
+        $this->selectedSeasonType = $this->getCurrentSeasonType();
         $this->selectedWeek = $this->getCurrentNFLWeek();
         $this->selectedSeason = now()->year;
         $this->loadWeeklyScores();
@@ -29,9 +31,32 @@ class WeeklyLeaderboard extends Component
         $this->loadWeeklyScores();
     }
 
+    private function getCurrentSeasonType(): int
+    {
+        $now = Carbon::now();
+        
+        $preseasonStart = Carbon::create(2025, 8, 1);
+        $regularSeasonStart = Carbon::create(2025, 9, 4);
+        $postseasonStart = Carbon::create(2026, 1, 11);
+        
+        if ($now->gte($preseasonStart) && $now->lt($regularSeasonStart)) {
+            return 1; // Preseason
+        } elseif ($now->gte($regularSeasonStart) && $now->lt($postseasonStart)) {
+            return 2; // Regular season
+        } else {
+            return 3; // Postseason
+        }
+    }
+
     private function getCurrentNFLWeek(): int
     {
         $now = Carbon::now();
+        
+        // Handle preseason separately
+        if ($this->selectedSeasonType == 1) {
+            return $this->getCurrentPreseasonWeek();
+        }
+        
         $seasonStart = Carbon::create(2025, 9, 4);
 
         if ($now->lt($seasonStart)) {
@@ -46,12 +71,33 @@ class WeeklyLeaderboard extends Component
 
         return min($weeksSinceStart + 1, 18);
     }
+    
+    private function getCurrentPreseasonWeek(): int
+    {
+        $now = Carbon::now();
+        
+        $preseasonWeek1Start = Carbon::create(2025, 8, 1);
+        $preseasonWeek2Start = Carbon::create(2025, 8, 8);
+        $preseasonWeek3Start = Carbon::create(2025, 8, 15);
+        $preseasonWeek4Start = Carbon::create(2025, 8, 22);
+        
+        if ($now->gte($preseasonWeek4Start)) {
+            return 4;
+        } elseif ($now->gte($preseasonWeek3Start)) {
+            return 3;
+        } elseif ($now->gte($preseasonWeek2Start)) {
+            return 2;
+        } else {
+            return 1;
+        }
+    }
 
     public function loadWeeklyScores()
     {
         $this->weeklyScores = WeeklyScore::with('user')
             ->where('week', $this->selectedWeek)
             ->where('season', $this->selectedSeason)
+            ->where('season_type', $this->selectedSeasonType)
             ->orderBy('rank')
             ->get()
             ->map(function ($score) {
