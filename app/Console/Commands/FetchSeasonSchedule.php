@@ -15,8 +15,8 @@ class FetchSeasonSchedule extends Command
      *
      * @var string
      */
-    protected $signature = 'fetch:season-schedule {week=1} {season=2025}';
-    protected $description = 'Fetch the 2025 NFL season schedule';
+    protected $signature = 'fetch:season-schedule {week=1} {season=2025} {--type=2 : Season type (1=preseason, 2=regular, 3=postseason)}';
+    protected $description = 'Fetch NFL season schedule for any season type';
 
     /**
      * The console command description.
@@ -31,11 +31,15 @@ class FetchSeasonSchedule extends Command
     {
         $season = (int) $this->argument('season');
         $week = (int) $this->argument('week');
+        $seasonType = (int) $this->option('type');
 
-        $this->info('Fetching NFL {$season} season schedule');
+        $seasonTypeNames = [1 => 'preseason', 2 => 'regular season', 3 => 'postseason'];
+        $seasonTypeName = $seasonTypeNames[$seasonType] ?? 'unknown';
+
+        $this->info("Fetching NFL {$season} {$seasonTypeName} schedule for Week {$week}");
 
         $connector = new ESPNConnector();
-        $request = new GetWeekGamesRequest(2025, 2, 2);
+        $request = new GetWeekGamesRequest($season, $week, $seasonType);
 
         // Debug: Show the full URL being called
         $fullUrl = $connector->resolveBaseUrl().$request->resolveEndpoint();
@@ -72,7 +76,7 @@ class FetchSeasonSchedule extends Command
                         $this->info("Dispatching jobs for " . count($data['items']) . " games...");
 
                         foreach ($data['items'] as $gameRef) {
-                            ProcessGameReference::dispatch($gameRef['$ref']);
+                            ProcessGameReference::dispatch($gameRef['$ref'], $week, $season, $seasonType);
                         }
 
                         $this->info("✅ All game processing jobs dispatched for Week {$week}!");

@@ -71,6 +71,16 @@
                                 </a>
                             </li>
                             <li>
+                                <a href="{{ route('leaderboard') }}"
+                                   wire:navigate
+                                   class="@if(request()->route()->getName() === 'leaderboard') bg-accent text-white @else text-primary dark:text-soft hover:bg-highlight/20 dark:hover:bg-card/20 @endif group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-all duration-200">
+                                    <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.228a25.628 25.628 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0" />
+                                    </svg>
+                                    Leaderboard
+                                </a>
+                            </li>
+                            <li>
                                 <a href="{{ route('groups.index') }}"
                                    wire:navigate
                                    class="@if(str_starts_with(request()->route()->getName(), 'groups.')) bg-accent text-white @else text-primary dark:text-soft hover:bg-highlight/20 dark:hover:bg-card/20 @endif group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-all duration-200">
@@ -244,6 +254,16 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.398.815 1.027 1.398 1.8 1.398h.174c.08 0 .157-.031.22-.067.075-.043.158-.097.234-.157.1-.075.206-.15.309-.224.296-.216.514-.467.691-.748a3.468 3.468 0 0 0 .422-.92c.17-.548.267-1.126.267-1.726v-.51H5.904Z" />
                                 </svg>
                                 Picks
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('leaderboard') }}"
+                               wire:navigate
+                               class="@if(request()->route()->getName() === 'leaderboard') bg-accent text-white shadow-sm @else text-primary dark:text-soft hover:bg-highlight/20 dark:hover:bg-card/20 @endif group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-all duration-200">
+                                <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.228a25.628 25.628 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0" />
+                                </svg>
+                                Leaderboard
                             </a>
                         </li>
                         <li>

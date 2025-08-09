@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\DataTransferObjects\GameData;
 use App\Http\Integrations\ESPN\ESPNConnector;
-use App\Http\Integrations\ESPN\Requests\GetGameDetailRequest;
+use App\Http\Integrations\ESPN\Requests\GetGameDetailsRequest;
 use App\Models\Game;
 use App\Models\Team;
 use App\Models\Venue;
@@ -36,7 +36,10 @@ class ProcessGameReference implements ShouldQueue
     public int $backoff = 30;
 
     public function __construct(
-        public string $gameReferenceUrl
+        public string $gameReferenceUrl,
+        public int $week = 1,
+        public int $season = 2025,
+        public int $seasonType = 2
     ) {}
 
     // In the handle method of ProcessGameReference job, add debugging:
@@ -51,7 +54,7 @@ class ProcessGameReference implements ShouldQueue
 
             // Fetch game details and get DTO directly
             $connector = new ESPNConnector();
-            $request = new GetGameDetailRequest($gameId);
+            $request = new GetGameDetailsRequest($gameId);
             $response = $connector->send($request);
 
             Log::info("API Response status: " . $response->status());
@@ -65,10 +68,11 @@ class ProcessGameReference implements ShouldQueue
             }
 
             Log::info("About to create DTO...");
-            $gameData = $response->dto();
+            $gameData = GameData::fromEspnData($response->json(), $this->week, $this->season, $this->seasonType);
             Log::info("DTO created successfully", [
                 'espn_id' => $gameData->espnId,
                 'week' => $gameData->week,
+                'season_type' => $gameData->seasonType,
                 'home_team_id' => $gameData->homeTeam->espnId
             ]);
 
@@ -140,6 +144,7 @@ class ProcessGameReference implements ShouldQueue
                 [
                     'week' => $gameData->week,
                     'season' => $gameData->season,
+                    'season_type' => $gameData->seasonType,
                     'date_time' => $gameData->dateTime,
                     'venue_id' => $venue->id,
                     'status' => $gameData->status,

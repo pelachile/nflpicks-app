@@ -19,18 +19,13 @@ class GameTeam extends Model
         'score',
     ];
 
-    public function venue(): BelongsTo
+    public function game(): BelongsTo
     {
-        return $this->belongsTo(Venue::class);
+        return $this->belongsTo(Game::class);
     }
 
-    public function user(): HasMany
+    public function team(): BelongsTo
     {
-        return $this->hasMany(User::class);
-    }
-
-    public function teams(): BelongsToMany
-    {
-        return $this->belongsToMany(Team::class, 'game_teams');
+        return $this->belongsTo(Team::class);
     }
 }

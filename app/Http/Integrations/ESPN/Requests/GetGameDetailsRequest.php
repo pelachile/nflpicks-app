@@ -17,7 +17,7 @@ class GetGameDetailsRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/v2/sports/football/leagues/nfl/events/" . $this->gameId;
+        return "events/" . $this->gameId;
     }
 
     protected function defaultQuery(): array

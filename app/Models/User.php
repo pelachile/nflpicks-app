@@ -59,4 +59,12 @@ class User extends Authenticatable
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
+
+    /**
+     * Get the user's predictions
+     */
+    public function predictions()
+    {
+        return $this->hasMany(UserPrediction::class);
+    }
 }

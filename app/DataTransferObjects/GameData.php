@@ -13,6 +13,7 @@ readonly class GameData
         public string $espnId,
         public int $week,
         public int $season,
+        public int $seasonType,
         public Carbon $dateTime,
         public string $status,
         public VenueData $venue,
@@ -22,7 +23,7 @@ readonly class GameData
         public ?string $shortName = null,
     ) {}
 
-    public static function fromEspnData(array $gameData): self
+    public static function fromEspnData(array $gameData, int $week = 1, int $season = 2025, int $seasonType = 2): self
     {
         $competition = $gameData['competitions'][0];
         $competitors = $competition['competitors'];
@@ -31,16 +32,21 @@ readonly class GameData
         $homeCompetitor = collect($competitors)->firstWhere('homeAway', 'home');
         $awayCompetitor = collect($competitors)->firstWhere('homeAway', 'away');
 
-        $week = $gameData['$meta']['parameters']['week'][0] ?? 1;
-
+        // Extract status - for individual game endpoints, the status might be a reference
+        // For actual status, we need to make additional API calls or default to scheduled
+        $status = 'scheduled'; // Default status
+        if (isset($competition['status']['type']['name'])) {
+            $status = strtolower($competition['status']['type']['name']);
+        }
 
         return new self(
             espnId: $gameData['id'],
-            week: (int) $week,
-            season: $gameData['$meta']['parameters']['season'][0] ?? 2025,
+            week: $week,
+            season: $season,
+            seasonType: $seasonType,
             dateTime: Carbon::parse($gameData['date']),
-            status: 'scheduled',
-            venue: VenueData::fromEspnData($competition['venue']),
+            status: $status,
+            venue: VenueData::fromEspnData($competition['venue'] ?? []),
             homeTeam: TeamData::fromEspnCompetitor($homeCompetitor),
             awayTeam: TeamData::fromEspnCompetitor($awayCompetitor),
             name: $gameData['name'] ?? null,

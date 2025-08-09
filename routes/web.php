@@ -6,6 +6,7 @@ use App\Livewire\JoinGroup;
 use App\Livewire\ManageGroup;
 use App\Livewire\ShowGroup;
 use App\Livewire\GamePredictions;
+use App\Livewire\WeeklyLeaderboard;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -27,6 +28,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['auth'])->group(function () {
         Route::get('/predictions', GamePredictions::class)->name('predictions');
+        Route::get('/leaderboard', WeeklyLeaderboard::class)->name('leaderboard');
         Route::get('/groups', Groups::class)->name('groups.index');
         Route::get('/groups/create', CreateGroup::class)->name('groups.create');
         Route::get('/groups/join', JoinGroup::class)->name('groups.join');

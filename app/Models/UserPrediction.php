@@ -13,6 +13,7 @@ class UserPrediction extends Model
         'game_id',
         'predicted_team_id',
         'confidence_level',
+        'tiebreaker_prediction',
     ];
 
     public function user(): BelongsTo

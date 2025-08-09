@@ -28,13 +28,80 @@
         </div>
     @endif
 
+    {{-- Tiebreaker section --}}
+    @if($tiebreakerGame)
+        <div class="bg-card rounded-lg shadow-md p-6 mb-6 border-2 border-highlight/30">
+            <h2 class="text-xl font-bold text-primary mb-4 flex items-center">
+                🏆 Tiebreaker - Monday Night Football
+            </h2>
+            <div class="bg-highlight/10 border border-highlight/30 text-primary px-4 py-3 rounded mb-4">
+                <p class="font-medium text-center">Predict the total combined score for the Monday night game:</p>
+                <div class="flex items-center justify-center mt-3 mb-2">
+                    @php
+                        $awayTeam = $tiebreakerGame->awayTeam()->first();
+                        $homeTeam = $tiebreakerGame->homeTeam()->first();
+                    @endphp
+                    
+                    {{-- Away Team --}}
+                    <div class="flex items-center space-x-2">
+                        @if($awayTeam?->logo_url)
+                            <img src="{{ $awayTeam->logo_url }}" alt="{{ $awayTeam->name }}" class="w-8 h-8">
+                        @endif
+                        <span class="font-medium">{{ $awayTeam?->name ?? 'Away Team' }}</span>
+                    </div>
+                    
+                    <span class="mx-4 text-primary/60">vs</span>
+                    
+                    {{-- Home Team --}}
+                    <div class="flex items-center space-x-2">
+                        @if($homeTeam?->logo_url)
+                            <img src="{{ $homeTeam->logo_url }}" alt="{{ $homeTeam->name }}" class="w-8 h-8">
+                        @endif
+                        <span class="font-medium">{{ $homeTeam?->name ?? 'Home Team' }}</span>
+                    </div>
+                </div>
+                <p class="text-xs text-primary/60 mt-1 text-center">
+                    {{ \Carbon\Carbon::parse($tiebreakerGame->date_time)->setTimezone('America/Chicago')->format('l, M j - g:i A T') }}
+                </p>
+            </div>
+
+            @if(\Carbon\Carbon::now()->lt($tiebreakerGame->date_time))
+                <div class="flex items-center space-x-4">
+                    <label class="font-medium text-primary" for="tiebreaker">Total Score:</label>
+                    <input
+                        type="number"
+                        id="tiebreaker"
+                        wire:model="tiebreakerPrediction"
+                        min="0"
+                        max="99"
+                        class="px-3 py-2 border border-primary/20 rounded-md shadow-sm focus:ring-highlight focus:border-highlight w-20"
+                        placeholder="0"
+                    >
+                    <button
+                        wire:click="saveTiebreakerPrediction"
+                        class="px-4 py-2 bg-highlight text-primary font-medium rounded-md hover:bg-highlight/90 transition-colors"
+                    >
+                        Save Tiebreaker
+                    </button>
+                </div>
+            @else
+                <div class="text-primary/60">
+                    Tiebreaker predictions are closed.
+                    @if($tiebreakerPrediction)
+                        Your prediction: {{ $tiebreakerPrediction }} points
+                    @endif
+                </div>
+            @endif
+        </div>
+    @endif
+
     {{-- Games list --}}
     <div class="space-y-6">
         @forelse($games as $game)
             <div class="bg-card rounded-lg shadow-md p-6 {{ !$game['can_predict'] ? 'opacity-75' : '' }}">
                 <div class="flex justify-between items-center mb-4">
                     <div class="text-lg font-semibold text-primary">
-                        {{ \Carbon\Carbon::parse($game['date_time'])->format('l, M j - g:i A T') }}
+                        {{ \Carbon\Carbon::parse($game['date_time'])->setTimezone('America/Chicago')->format('l, M j - g:i A T') }}
                         @if(!$game['can_predict'])
                             <span class="ml-2 px-2 py-1 bg-tomato/10 text-tomato text-xs rounded">
                                 Predictions Closed
@@ -71,10 +138,18 @@
                                         {{ $game['away_team']['abbreviation'] }}
                                     </div>
                                 @endif
-                                <div>
+                                <div class="flex-1">
                                     <h3 class="font-bold text-lg text-primary">{{ $game['away_team']['name'] }}</h3>
                                     <p class="text-sm text-primary/60">Away</p>
                                 </div>
+                                @if($game['has_scores'])
+                                    <div class="text-right">
+                                        <div class="text-2xl font-bold text-primary">{{ $game['away_team']['score'] ?? 0 }}</div>
+                                        @if($game['is_completed'])
+                                            <div class="text-xs text-primary/60">Final</div>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
                             @if(isset($predictions[$game['id']]) && $predictions[$game['id']] == $game['away_team']['id'])
                                 <div class="absolute -top-2 -right-2">
@@ -110,10 +185,18 @@
                                         {{ $game['home_team']['abbreviation'] }}
                                     </div>
                                 @endif
-                                <div>
+                                <div class="flex-1">
                                     <h3 class="font-bold text-lg text-primary">{{ $game['home_team']['name'] }}</h3>
                                     <p class="text-sm text-primary/60">Home</p>
                                 </div>
+                                @if($game['has_scores'])
+                                    <div class="text-right">
+                                        <div class="text-2xl font-bold text-primary">{{ $game['home_team']['score'] ?? 0 }}</div>
+                                        @if($game['is_completed'])
+                                            <div class="text-xs text-primary/60">Final</div>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
                             @if(isset($predictions[$game['id']]) && $predictions[$game['id']] == $game['home_team']['id'])
                                 <div class="absolute -top-2 -right-2">
