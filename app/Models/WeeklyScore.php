@@ -11,6 +11,7 @@ class WeeklyScore extends Model
         'user_id',
         'week',
         'season',
+        'season_type',
         'wins',
         'losses',
         'tiebreaker_prediction',
