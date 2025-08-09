@@ -15,42 +15,78 @@ class FixWeeklyScoresTable extends Command
         $this->info('Fixing weekly_scores table...');
         
         try {
-            // Add all missing columns
-            $this->info('Adding user_id column...');
-            DB::statement('ALTER TABLE weekly_scores ADD COLUMN IF NOT EXISTS user_id BIGINT UNSIGNED NOT NULL');
+            // Check if columns exist before adding (PostgreSQL compatible)
+            $columns = DB::select("SELECT column_name FROM information_schema.columns WHERE table_name = 'weekly_scores'");
+            $existingColumns = collect($columns)->pluck('column_name')->toArray();
             
-            $this->info('Adding week column...');
-            DB::statement('ALTER TABLE weekly_scores ADD COLUMN IF NOT EXISTS week INTEGER NOT NULL');
+            // Add missing columns (PostgreSQL syntax)
+            if (!in_array('user_id', $existingColumns)) {
+                $this->info('Adding user_id column...');
+                DB::statement('ALTER TABLE weekly_scores ADD COLUMN user_id BIGINT NOT NULL');
+            }
             
-            $this->info('Adding season column...');
-            DB::statement('ALTER TABLE weekly_scores ADD COLUMN IF NOT EXISTS season INTEGER NOT NULL');
+            if (!in_array('week', $existingColumns)) {
+                $this->info('Adding week column...');
+                DB::statement('ALTER TABLE weekly_scores ADD COLUMN week INTEGER NOT NULL');
+            }
             
-            $this->info('Adding wins column...');
-            DB::statement('ALTER TABLE weekly_scores ADD COLUMN IF NOT EXISTS wins INTEGER NOT NULL DEFAULT 0');
+            if (!in_array('season', $existingColumns)) {
+                $this->info('Adding season column...');
+                DB::statement('ALTER TABLE weekly_scores ADD COLUMN season INTEGER NOT NULL');
+            }
             
-            $this->info('Adding losses column...');
-            DB::statement('ALTER TABLE weekly_scores ADD COLUMN IF NOT EXISTS losses INTEGER NOT NULL DEFAULT 0');
+            if (!in_array('wins', $existingColumns)) {
+                $this->info('Adding wins column...');
+                DB::statement('ALTER TABLE weekly_scores ADD COLUMN wins INTEGER NOT NULL DEFAULT 0');
+            }
             
-            $this->info('Adding tiebreaker_prediction column...');
-            DB::statement('ALTER TABLE weekly_scores ADD COLUMN IF NOT EXISTS tiebreaker_prediction INTEGER NULL');
+            if (!in_array('losses', $existingColumns)) {
+                $this->info('Adding losses column...');
+                DB::statement('ALTER TABLE weekly_scores ADD COLUMN losses INTEGER NOT NULL DEFAULT 0');
+            }
             
-            $this->info('Adding actual_tiebreaker_score column...');
-            DB::statement('ALTER TABLE weekly_scores ADD COLUMN IF NOT EXISTS actual_tiebreaker_score INTEGER NULL');
+            if (!in_array('tiebreaker_prediction', $existingColumns)) {
+                $this->info('Adding tiebreaker_prediction column...');
+                DB::statement('ALTER TABLE weekly_scores ADD COLUMN tiebreaker_prediction INTEGER');
+            }
             
-            $this->info('Adding tiebreaker_difference column...');
-            DB::statement('ALTER TABLE weekly_scores ADD COLUMN IF NOT EXISTS tiebreaker_difference INTEGER NULL');
+            if (!in_array('actual_tiebreaker_score', $existingColumns)) {
+                $this->info('Adding actual_tiebreaker_score column...');
+                DB::statement('ALTER TABLE weekly_scores ADD COLUMN actual_tiebreaker_score INTEGER');
+            }
             
-            $this->info('Adding rank column...');
-            DB::statement('ALTER TABLE weekly_scores ADD COLUMN IF NOT EXISTS rank INTEGER NULL');
+            if (!in_array('tiebreaker_difference', $existingColumns)) {
+                $this->info('Adding tiebreaker_difference column...');
+                DB::statement('ALTER TABLE weekly_scores ADD COLUMN tiebreaker_difference INTEGER');
+            }
             
-            // Add foreign key constraint
+            if (!in_array('rank', $existingColumns)) {
+                $this->info('Adding rank column...');
+                DB::statement('ALTER TABLE weekly_scores ADD COLUMN rank INTEGER');
+            }
+            
+            // Add foreign key constraint (check if it doesn't exist)
             $this->info('Adding foreign key constraint...');
-            DB::statement('ALTER TABLE weekly_scores ADD CONSTRAINT IF NOT EXISTS weekly_scores_user_id_foreign FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE');
+            try {
+                DB::statement('ALTER TABLE weekly_scores ADD CONSTRAINT weekly_scores_user_id_foreign FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE');
+            } catch (\Exception $e) {
+                // Constraint might already exist
+                $this->info('Foreign key constraint may already exist');
+            }
             
             // Add indexes for performance
             $this->info('Adding indexes...');
-            DB::statement('CREATE INDEX IF NOT EXISTS weekly_scores_week_season_index ON weekly_scores (week, season)');
-            DB::statement('CREATE INDEX IF NOT EXISTS weekly_scores_rank_index ON weekly_scores (rank)');
+            try {
+                DB::statement('CREATE INDEX weekly_scores_week_season_index ON weekly_scores (week, season)');
+            } catch (\Exception $e) {
+                // Index might already exist
+            }
+            
+            try {
+                DB::statement('CREATE INDEX weekly_scores_rank_index ON weekly_scores (rank)');
+            } catch (\Exception $e) {
+                // Index might already exist
+            }
             
             $this->info('✅ Weekly scores table fixed successfully!');
             
