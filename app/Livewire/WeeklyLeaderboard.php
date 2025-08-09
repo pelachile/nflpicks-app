@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\WeeklyScore;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
 
 class WeeklyLeaderboard extends Component
@@ -53,7 +54,7 @@ class WeeklyLeaderboard extends Component
         $now = Carbon::now();
         
         // Handle preseason separately
-        if ($this->selectedSeasonType == 1) {
+        if (isset($this->selectedSeasonType) && $this->selectedSeasonType == 1) {
             return $this->getCurrentPreseasonWeek();
         }
         
@@ -94,26 +95,36 @@ class WeeklyLeaderboard extends Component
 
     public function loadWeeklyScores()
     {
-        $this->weeklyScores = WeeklyScore::with('user')
-            ->where('week', $this->selectedWeek)
-            ->where('season', $this->selectedSeason)
-            ->where('season_type', $this->selectedSeasonType)
-            ->orderBy('rank')
-            ->get()
-            ->map(function ($score) {
-                return [
-                    'rank' => $score->rank,
-                    'user_name' => $score->user->name,
-                    'wins' => $score->wins,
-                    'losses' => $score->losses,
-                    'record' => $score->wins . '–' . $score->losses,
-                    'tiebreaker_prediction' => $score->tiebreaker_prediction,
-                    'actual_tiebreaker_score' => $score->actual_tiebreaker_score,
-                    'tiebreaker_difference' => $score->tiebreaker_difference,
-                    'had_tiebreaker' => $score->tiebreaker_prediction !== null,
-                ];
-            })
-            ->toArray();
+        try {
+            $query = WeeklyScore::with('user')
+                ->where('week', $this->selectedWeek)
+                ->where('season', $this->selectedSeason);
+                
+            // Only add season_type filter if column exists
+            if (\Schema::hasColumn('weekly_scores', 'season_type')) {
+                $query->where('season_type', $this->selectedSeasonType);
+            }
+            
+            $this->weeklyScores = $query
+                ->orderBy('rank')
+                ->get()
+                ->map(function ($score) {
+                    return [
+                        'rank' => $score->rank,
+                        'user_name' => $score->user ? $score->user->name : 'Unknown',
+                        'wins' => $score->wins,
+                        'losses' => $score->losses,
+                        'record' => $score->wins . '–' . $score->losses,
+                        'tiebreaker_prediction' => $score->tiebreaker_prediction,
+                        'actual_tiebreaker_score' => $score->actual_tiebreaker_score,
+                        'tiebreaker_difference' => $score->tiebreaker_difference,
+                        'had_tiebreaker' => $score->tiebreaker_prediction !== null,
+                    ];
+                })
+                ->toArray();
+        } catch (\Exception $e) {
+            $this->weeklyScores = [];
+        }
     }
 
     public function render()

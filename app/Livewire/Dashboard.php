@@ -196,24 +196,28 @@ class Dashboard extends Component
 
     private function loadLeaderboardPreview()
     {
-        // Get the most recent week with scores
-        $latestWeek = WeeklyScore::where('season', 2025)
-            ->max('week') ?? $this->currentWeek;
-            
-        $this->leaderboardPreview = WeeklyScore::with('user')
-            ->where('week', $latestWeek)
-            ->where('season', 2025)
-            ->orderBy('rank')
-            ->limit(5)
-            ->get()
-            ->map(function ($score) {
-                return [
-                    'rank' => $score->rank,
-                    'user_name' => $score->user->name,
-                    'wins' => $score->wins,
-                    'losses' => $score->losses,
-                ];
-            });
+        try {
+            // Get the most recent week with scores
+            $latestWeek = WeeklyScore::where('season', 2025)
+                ->max('week') ?? $this->currentWeek;
+                
+            $this->leaderboardPreview = WeeklyScore::with('user')
+                ->where('week', $latestWeek)
+                ->where('season', 2025)
+                ->orderBy('rank')
+                ->limit(5)
+                ->get()
+                ->map(function ($score) {
+                    return [
+                        'rank' => $score->rank,
+                        'user_name' => $score->user ? $score->user->name : 'Unknown',
+                        'wins' => $score->wins,
+                        'losses' => $score->losses,
+                    ];
+                });
+        } catch (\Exception $e) {
+            $this->leaderboardPreview = collect([]);
+        }
     }
 
     public function render()
