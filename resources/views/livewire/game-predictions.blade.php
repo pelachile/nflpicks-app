@@ -1,5 +1,5 @@
 <div class="max-w-6xl mx-auto p-6">
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div class="rounded-lg shadow-md p-6 mb-6">
         <h1 class="text-3xl font-bold text-gray-800 mb-4">
             NFL Week {{ $currentWeek }} Predictions
         </h1>
@@ -31,7 +31,7 @@
     {{-- Games list --}}
     <div class="space-y-6">
         @forelse($games as $game)
-            <div class="bg-white rounded-lg shadow-md p-6 {{ !$game['can_predict'] ? 'opacity-75' : '' }}">
+            <div class="bg-gray-900 rounded-lg shadow-md p-6 {{ !$game['can_predict'] ? 'opacity-75' : '' }}">
                 <div class="flex justify-between items-center mb-4">
                     <div class="text-lg font-semibold">
                         {{ \Carbon\Carbon::parse($game['date_time'])->format('l, M j - g:i A T') }}
@@ -56,15 +56,23 @@
                             }} {{
                                 isset($predictions[$game['id']]) && $predictions[$game['id']] == $game['away_team']['id']
                                     ? 'border-blue-500 bg-blue-50 shadow-lg'
-                                    : 'border-gray-200 bg-white ' . ($game['can_predict'] ? 'hover:border-gray-300 hover:shadow-md' : '')
+                                    : 'border-gray-200 ' . ($game['can_predict'] ? 'hover:border-gray-300 hover:shadow-md' : '')
                             }}"
                         >
                             <div class="flex items-center space-x-3">
-                                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg bg-gray-500">
-                                    {{ $game['away_team']['abbreviation'] ?? 'T' . $game['away_team']['espn_id'] }}
-                                </div>
+                                @if($game['away_team']['logo_url'])
+                                    <img
+                                            src="{{ $game['away_team']['logo_url'] }}"
+                                            alt="{{ $game['away_team']['name'] }} logo"
+                                            class="w-12 h-12 object-contain"
+                                    >
+                                @else
+                                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg bg-gray-500">
+                                        {{ $game['away_team']['abbreviation'] }}
+                                    </div>
+                                @endif
                                 <div>
-                                    <h3 class="font-bold text-lg">{{ $game['away_team']['name'] }}</h3>
+                                    <h3 class="font-bold text-lg text-gray-700">{{ $game['away_team']['name'] }}</h3>
                                     <p class="text-sm text-gray-600">Away</p>
                                 </div>
                             </div>
@@ -91,9 +99,17 @@
                             }}"
                         >
                             <div class="flex items-center space-x-3">
-                                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg bg-gray-600">
-                                    {{ $game['home_team']['abbreviation'] ?? 'T' . $game['home_team']['espn_id'] }}
-                                </div>
+                                @if($game['home_team']['logo_url'])
+                                    <img
+                                            src="{{ $game['home_team']['logo_url'] }}"
+                                            alt="{{ $game['home_team']['name'] }} logo"
+                                            class="w-12 h-12 object-contain"
+                                    >
+                                @else
+                                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg bg-gray-500">
+                                        {{ $game['home_team']['abbreviation'] }}
+                                    </div>
+                                @endif
                                 <div>
                                     <h3 class="font-bold text-lg">{{ $game['home_team']['name'] }}</h3>
                                     <p class="text-sm text-gray-600">Home</p>

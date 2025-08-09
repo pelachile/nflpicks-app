@@ -20,11 +20,12 @@ class ESPNConnector extends Connector
     /**
      * Default headers for every request
      */
+    // In ESPNConnector.php
     protected function defaultHeaders(): array
     {
         return [
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json'
+            'Accept' => 'application/json',
+            'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         ];
     }
 

@@ -60,6 +60,7 @@ class GamePredictions extends Component
         }
     }
 
+    // app/Livewire/GamePredictions.php - Update the loadGames method
     public function loadGames()
     {
         $this->games = Game::with(['venue', 'teams'])
@@ -68,13 +69,34 @@ class GamePredictions extends Component
             ->orderBy('date_time')
             ->get()
             ->map(function ($game) {
+                $homeTeam = $game->teams->where('pivot.is_home', true)->first();
+                $awayTeam = $game->teams->where('pivot.is_home', false)->first();
+
                 return [
                     'id' => $game->id,
                     'espn_id' => $game->espn_id,
                     'date_time' => $game->date_time,
                     'venue' => $game->venue,
-                    'home_team' => $game->teams->where('pivot.is_home', true)->first(),
-                    'away_team' => $game->teams->where('pivot.is_home', false)->first(),
+                    'home_team' => $homeTeam ? [
+                        'id' => $homeTeam->id,
+                        'name' => $homeTeam->name,
+                        'abbreviation' => $homeTeam->abbreviation,
+                        'primary_color' => $homeTeam->primary_color,
+                        'secondary_color' => $homeTeam->secondary_color,
+                        'logo_url' => $homeTeam->logo_url,
+                        'conference' => $homeTeam->conference,
+                        'division' => $homeTeam->division,
+                    ] : null,
+                    'away_team' => $awayTeam ? [
+                        'id' => $awayTeam->id,
+                        'name' => $awayTeam->name,
+                        'abbreviation' => $awayTeam->abbreviation,
+                        'primary_color' => $awayTeam->primary_color,
+                        'secondary_color' => $awayTeam->secondary_color,
+                        'logo_url' => $awayTeam->logo_url,
+                        'conference' => $awayTeam->conference,
+                        'division' => $awayTeam->division,
+                    ] : null,
                     'status' => $game->status,
                     'can_predict' => Carbon::now()->lt(Carbon::parse($game->date_time)),
                 ];
