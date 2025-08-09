@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\CreateGroup;
+use App\Livewire\Dashboard;
 use App\Livewire\Groups;
 use App\Livewire\JoinGroup;
 use App\Livewire\ManageGroup;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', action: WelcomePage::class)->name('welcome');
 
-Route::view('dashboard', 'dashboard')
+Route::get('dashboard', Dashboard::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
