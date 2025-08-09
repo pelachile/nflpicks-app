@@ -14,10 +14,26 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class ProcessGameReference implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * The number of times the job may be attempted.
+     */
+    public int $tries = 3;
+
+    /**
+     * The maximum number of seconds the job can run.
+     */
+    public int $timeout = 60;
+
+    /**
+     * The number of seconds to wait before retrying the job.
+     */
+    public int $backoff = 30;
 
     public function __construct(
         public string $gameReferenceUrl
@@ -81,69 +97,83 @@ class ProcessGameReference implements ShouldQueue
 
     private function storeGameData(GameData $gameData): void
     {
-        // Create/update venue
-        $venue = Venue::updateOrCreate(
-            ['espn_id' => $gameData->venue->espnId],
-            [
-                'name' => $gameData->venue->name,
-                'city' => $gameData->venue->city,
-                'state' => $gameData->venue->state,
-                'capacity' => $gameData->venue->capacity,
-                'dome' => $gameData->venue->dome,
-                'surface_type' => $gameData->venue->surface,
-            ]
-        );
+        DB::transaction(function () use ($gameData) {
+            // Create/update venue
+            $venue = Venue::updateOrCreate(
+                ['espn_id' => $gameData->venue->espnId],
+                [
+                    'name' => $gameData->venue->name,
+                    'city' => $gameData->venue->city,
+                    'state' => $gameData->venue->state,
+                    'capacity' => $gameData->venue->capacity,
+                    'dome' => $gameData->venue->dome,
+                    'surface_type' => $gameData->venue->surface,
+                ]
+            );
 
-        // Create/update teams
-        $homeTeam = Team::updateOrCreate(
-            ['espn_id' => $gameData->homeTeam->espnId],
-            [
-                'name' => $gameData->homeTeam->name,
-                'abbreviation' => $gameData->homeTeam->abbreviation,
-                'primary_color' => $gameData->homeTeam->primaryColor,
-                'secondary_color' => $gameData->homeTeam->secondaryColor,
-                'logo_url' => $gameData->homeTeam->logoUrl,
-            ]
-        );
+            // Create/update teams
+            $homeTeam = Team::updateOrCreate(
+                ['espn_id' => $gameData->homeTeam->espnId],
+                [
+                    'name' => $gameData->homeTeam->name,
+                    'abbreviation' => $gameData->homeTeam->abbreviation,
+                    'primary_color' => $gameData->homeTeam->primaryColor,
+                    'secondary_color' => $gameData->homeTeam->secondaryColor,
+                    'logo_url' => $gameData->homeTeam->logoUrl,
+                ]
+            );
 
-        $awayTeam = Team::updateOrCreate(
-            ['espn_id' => $gameData->awayTeam->espnId],
-            [
-                'name' => $gameData->awayTeam->name,
-                'abbreviation' => $gameData->awayTeam->abbreviation,
-                'primary_color' => $gameData->awayTeam->primaryColor,
-                'secondary_color' => $gameData->awayTeam->secondaryColor,
-                'logo_url' => $gameData->awayTeam->logoUrl,
-            ]
-        );
+            $awayTeam = Team::updateOrCreate(
+                ['espn_id' => $gameData->awayTeam->espnId],
+                [
+                    'name' => $gameData->awayTeam->name,
+                    'abbreviation' => $gameData->awayTeam->abbreviation,
+                    'primary_color' => $gameData->awayTeam->primaryColor,
+                    'secondary_color' => $gameData->awayTeam->secondaryColor,
+                    'logo_url' => $gameData->awayTeam->logoUrl,
+                ]
+            );
 
-        // Create/update game
-        $game = Game::updateOrCreate(
-            ['espn_id' => $gameData->espnId],
-            [
-                'week' => $gameData->week,
-                'season' => $gameData->season,
-                'date_time' => $gameData->dateTime,
-                'venue_id' => $venue->id,
-                'status' => $gameData->status,
-            ]
-        );
+            // Create/update game
+            $game = Game::updateOrCreate(
+                ['espn_id' => $gameData->espnId],
+                [
+                    'week' => $gameData->week,
+                    'season' => $gameData->season,
+                    'date_time' => $gameData->dateTime,
+                    'venue_id' => $venue->id,
+                    'status' => $gameData->status,
+                ]
+            );
 
-        // Create game-team relationships
-        $game->gameTeams()->updateOrCreate(
-            ['team_id' => $homeTeam->id],
-            ['is_home' => true]
-        );
+            // Create game-team relationships
+            $game->gameTeams()->updateOrCreate(
+                ['team_id' => $homeTeam->id],
+                ['is_home' => true]
+            );
 
-        $game->gameTeams()->updateOrCreate(
-            ['team_id' => $awayTeam->id],
-            ['is_home' => false]
-        );
+            $game->gameTeams()->updateOrCreate(
+                ['team_id' => $awayTeam->id],
+                ['is_home' => false]
+            );
 
-        Log::info("Stored game data in database", [
-            'game_id' => $game->id,
-            'home_team' => $homeTeam->name,
-            'away_team' => $awayTeam->name
+            Log::info("Stored game data in database", [
+                'game_id' => $game->id,
+                'home_team' => $homeTeam->name,
+                'away_team' => $awayTeam->name
+            ]);
+        }, 3); // 3 retry attempts for deadlocks
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        Log::error("ProcessGameReference job failed permanently", [
+            'url' => $this->gameReferenceUrl,
+            'error' => $exception->getMessage(),
+            'attempts' => $this->attempts()
         ]);
     }
 }

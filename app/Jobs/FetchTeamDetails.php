@@ -11,10 +11,26 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class FetchTeamDetails implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * The number of times the job may be attempted.
+     */
+    public int $tries = 3;
+
+    /**
+     * The maximum number of seconds the job can run.
+     */
+    public int $timeout = 60;
+
+    /**
+     * The number of seconds to wait before retrying the job.
+     */
+    public int $backoff = 30;
 
     public function __construct(
         public string $teamId
@@ -47,22 +63,35 @@ class FetchTeamDetails implements ShouldQueue
         }
     }
 
-// Clean up updateTeamData method (remove echo statements)
     private function updateTeamData(array $teamData): void
     {
-        $team = Team::where('espn_id', $this->teamId)->first();
+        DB::transaction(function () use ($teamData) {
+            $team = Team::where('espn_id', $this->teamId)->first();
 
-        if (!$team) {
-            Log::warning("Team not found with ESPN ID: {$this->teamId}");
-            return;
-        }
+            if (!$team) {
+                Log::warning("Team not found with ESPN ID: {$this->teamId}");
+                return;
+            }
 
-        $team->update([
-            'name' => $teamData['displayName'] ?? $team->name,
-            'abbreviation' => $teamData['abbreviation'] ?? $team->abbreviation,
-            'primary_color' => $teamData['color'] ?? null,
-            'secondary_color' => $teamData['alternateColor'] ?? null,
-            'logo_url' => $teamData['logos'][0]['href'] ?? null,
+            $team->update([
+                'name' => $teamData['displayName'] ?? $team->name,
+                'abbreviation' => $teamData['abbreviation'] ?? $team->abbreviation,
+                'primary_color' => $teamData['color'] ?? null,
+                'secondary_color' => $teamData['alternateColor'] ?? null,
+                'logo_url' => $teamData['logos'][0]['href'] ?? null,
+            ]);
+        }, 3); // 3 retry attempts for deadlocks
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        Log::error("FetchTeamDetails job failed permanently", [
+            'team_id' => $this->teamId,
+            'error' => $exception->getMessage(),
+            'attempts' => $this->attempts()
         ]);
     }
 }
