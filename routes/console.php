@@ -27,35 +27,9 @@ Schedule::command('fetch:team-data')
     ->weeklyOn(2, '02:00') // Tuesday at 2 AM
     ->withoutOverlapping();
 
-// Fetch live scores during game times with comprehensive logging
+// TEMPORARY: Run fetch:live-scores every 15 minutes without time restrictions for testing
 Schedule::command('fetch:live-scores')
     ->everyFifteenMinutes()
-    ->when(function () {
-        // Convert server time (UTC) to Eastern Time for NFL game scheduling
-        $easternTime = \Carbon\Carbon::now('America/New_York');
-        
-        // Saturday games: 12 PM to 11:59 PM Eastern
-        if ($easternTime->isSaturday() && $easternTime->hour >= 12 && $easternTime->hour <= 23) {
-            return true;
-        }
-        
-        // Sunday games: 12 PM to 11:59 PM Eastern
-        if ($easternTime->isSunday() && $easternTime->hour >= 12 && $easternTime->hour <= 23) {
-            return true;
-        }
-        
-        // Monday games: 7 PM to 11:59 PM Eastern
-        if ($easternTime->isMonday() && $easternTime->hour >= 19 && $easternTime->hour <= 23) {
-            return true;
-        }
-        
-        // Thursday games: 7 PM to 11:59 PM Eastern
-        if ($easternTime->isThursday() && $easternTime->hour >= 19 && $easternTime->hour <= 23) {
-            return true;
-        }
-        
-        return false;
-    })
     ->withoutOverlapping()
     ->before(function () {
         $easternTime = \Carbon\Carbon::now('America/New_York');
