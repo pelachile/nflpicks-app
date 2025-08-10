@@ -18,27 +18,35 @@ Schedule::command('fetch:team-data')
     ->weeklyOn(2, '02:00') // Tuesday at 2 AM
     ->withoutOverlapping();
 
-// Automatically fetch live scores for current week/season type during game times (CDT)
-// Thursday: 7 PM - 12 AM CDT
-Schedule::command('fetch:current-week-scores')
-    ->thursdays()
-    ->between('19:00', '23:59')
-    ->hourly()
+// Fetch live scores during NFL game times (CDT)
+// Saturday: 12 PM - 12 AM CDT (every 15 minutes)
+Schedule::command('fetch:live-scores')
+    ->saturdays()
+    ->between('12:00', '23:59')
+    ->everyFifteenMinutes()
     ->timezone('America/Chicago')
     ->withoutOverlapping();
 
-// Sunday: 12 PM - 12 AM CDT  
-Schedule::command('fetch:current-week-scores')
+// Sunday: 12 PM - 12 AM CDT (every 15 minutes)
+Schedule::command('fetch:live-scores')
     ->sundays()
     ->between('12:00', '23:59')
-    ->hourly()
+    ->everyFifteenMinutes()
     ->timezone('America/Chicago')
     ->withoutOverlapping();
 
-// Monday: 7 PM - 12 AM CDT (includes weekly scoring calculation)
-Schedule::command('fetch:current-week-scores')
+// Monday: 7 PM - 12 AM CDT (every 15 minutes)
+Schedule::command('fetch:live-scores')
     ->mondays()
     ->between('19:00', '23:59')
-    ->hourly()
+    ->everyFifteenMinutes()
+    ->timezone('America/Chicago')
+    ->withoutOverlapping();
+
+// Thursday: 7 PM - 12 AM CDT (every 15 minutes)
+Schedule::command('fetch:live-scores')
+    ->thursdays()
+    ->between('19:00', '23:59')
+    ->everyFifteenMinutes()
     ->timezone('America/Chicago')
     ->withoutOverlapping();

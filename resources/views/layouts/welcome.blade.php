@@ -5,6 +5,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'NFL Pick\'em League' }}</title>
+    
+    <link rel="icon" href="/favicon.ico?v={{ time() }}" sizes="any">
+    <link rel="icon" href="/favicon.svg?v={{ time() }}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -27,8 +32,8 @@
     <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
         <!-- Logo -->
         <div class="flex items-center space-x-2">
-            <img src="{{asset('/logo.svg')}}" alt="Pick'em League Logo" class="h-6 w-6" />
-            <span class="text-lg font-bold">Pick’em League</span>
+            <span class="text-2xl">🏆</span>
+            <span class="text-lg font-bold">{{ config('app.name') }}</span>
         </div>
 
         <!-- Desktop Menu -->
@@ -86,7 +91,7 @@
 <footer class="bg-primary text-soft text-sm py-8 px-6">
     <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
         <div class="text-center md:text-left font-semibold">
-            © 2025 Pick'em League
+            © 2025 {{ config('app.name') }}
         </div>
         <div class="text-center text-soft/80">Not affiliated with the NFL.</div>
         <div class="text-center md:text-right space-x-4">

@@ -161,7 +161,7 @@
 
         <!-- Mobile breadcrumb or title -->
         <div class="flex-1 text-sm font-semibold leading-6 text-primary dark:text-soft">
-            NFL Picks
+            {{ config('app.name') }}
         </div>
 
         <!-- Mobile user menu -->

@@ -1,16 +1,27 @@
-<div class="max-w-6xl mx-auto p-6">
-    <div class="bg-card rounded-lg shadow-md p-6 mb-6">
+<div class="max-w-6xl mx-auto p-6" 
+     @if($this->hasGamesInProgress()) wire:poll.30s="refreshScores" @endif>
+    <div class="bg-card rounded-lg shadow-md p-6 mb-6 text-center">
         <h1 class="text-3xl font-bold text-primary mb-4">
             NFL Week {{ $currentWeek }} Predictions
         </h1>
 
         @if($predictionsClosed)
             <div class="bg-tomato/10 border border-tomato/30 text-tomato px-4 py-3 rounded mb-4">
-                <strong>Predictions Closed:</strong> The first game of the week has started. No more predictions can be made for Week {{ $currentWeek }}.
+                <strong>Predictions Closed:</strong> Games that have already started are not open for predictions.
             </div>
         @else
             <div class="bg-highlight/10 border border-highlight/30 text-primary px-4 py-3 rounded mb-4">
-                <strong>Predictions Open:</strong> Make your picks before the first game starts!
+                <strong>Predictions Open:</strong> Make your picks before the games start!
+            </div>
+        @endif
+
+        {{-- Live Updates Indicator --}}
+        @if($this->hasGamesInProgress())
+            <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4 flex items-center justify-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="text-sm font-medium">Live updates enabled - Scores refresh every 30 seconds</span>
+                </div>
             </div>
         @endif
     </div>
@@ -74,7 +85,7 @@
                         wire:model="tiebreakerPrediction"
                         min="0"
                         max="99"
-                        class="px-3 py-2 border border-primary/20 rounded-md shadow-sm focus:ring-highlight focus:border-highlight w-20"
+                        class="border-primary/20 focus:ring-highlight focus:border-highlight w-20"
                         placeholder="0"
                     >
                     <button
@@ -99,17 +110,12 @@
     <div class="space-y-6">
         @forelse($games as $game)
             <div class="bg-card rounded-lg shadow-md p-6 {{ !$game['can_predict'] ? 'opacity-75' : '' }}">
-                <div class="flex justify-between items-center mb-4">
+                <div class="text-center mb-4">
                     <div class="text-lg font-semibold text-primary">
-                        {{ \Carbon\Carbon::parse($game['date_time'])->setTimezone('America/Chicago')->format('l, M j - g:i A T') }}
-                        @if(!$game['can_predict'])
-                            <span class="ml-2 px-2 py-1 bg-tomato/10 text-tomato text-xs rounded">
-                                Predictions Closed
-                            </span>
-                        @endif
+                        {{ \Carbon\Carbon::parse($game['date_time'])->setTimezone('America/Chicago')->format('D, M j - g:i A T') }}
                     </div>
-                    <div class="text-sm text-primary/60">
-                        {{ $game['venue']['name'] ?? 'TBD' }}, {{ $game['venue']['city'] ?? '' }}
+                    <div class="text-sm text-primary/60 mt-1">
+                        {{ $game['venue']['name'] ?? 'TBD' }}{{ $game['venue']['city'] ? ', ' . $game['venue']['city'] : '' }}
                     </div>
                 </div>
 
@@ -217,6 +223,15 @@
                     <div class="mt-4 p-3 bg-highlight/10 border border-highlight/30 rounded-lg">
                         <p class="text-primary font-medium">
                             ✅ Your prediction: {{ $predictedTeam['name'] }} will win
+                        </p>
+                    </div>
+                @endif
+
+                {{-- Predictions closed notice --}}
+                @if(!$game['can_predict'])
+                    <div class="mt-4 p-3 bg-tomato/10 border border-tomato/30 rounded-lg text-center">
+                        <p class="text-tomato font-medium text-sm">
+                            🔒 Predictions Closed - Game has started
                         </p>
                     </div>
                 @endif

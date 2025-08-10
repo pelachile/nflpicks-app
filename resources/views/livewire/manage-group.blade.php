@@ -175,10 +175,9 @@
             @endforeach
         </div>
     </div>
-    {{-- Add this section after the Group Members section in resources/views/livewire/manage-group.blade.php --}}
 
     {{-- Danger Zone --}}
-    <div class="bg-card rounded-lg shadow-md p-6 border-l-4 border-tomato">
+    <div class="bg-card rounded-lg shadow-md p-6 border-l-4 border-tomato mt-6">
         <h2 class="text-2xl font-bold text-tomato mb-4">Danger Zone</h2>
 
         <div class="bg-tomato/10 border border-tomato/30 rounded-lg p-4 mb-4">

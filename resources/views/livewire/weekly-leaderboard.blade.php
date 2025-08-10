@@ -8,7 +8,7 @@
         <div class="flex space-x-4 mb-6">
             <div>
                 <label class="block text-sm font-medium text-primary mb-2">Week</label>
-                <select wire:model.live="selectedWeek" class="px-3 py-2 border border-primary/20 rounded-md shadow-sm focus:ring-highlight focus:border-highlight">
+                <select wire:model.live="selectedWeek" class="px-3 py-2 pr-8 border border-primary/20 rounded-md shadow-sm focus:ring-highlight focus:border-highlight">
                     @for($week = 1; $week <= 18; $week++)
                         <option value="{{ $week }}">Week {{ $week }}</option>
                     @endfor
@@ -16,7 +16,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-primary mb-2">Season</label>
-                <select wire:model.live="selectedSeason" class="px-3 py-2 border border-primary/20 rounded-md shadow-sm focus:ring-highlight focus:border-highlight">
+                <select wire:model.live="selectedSeason" class="px-3 py-2 pr-8 border border-primary/20 rounded-md shadow-sm focus:ring-highlight focus:border-highlight">
                     <option value="2024">2024</option>
                     <option value="2025">2025</option>
                 </select>

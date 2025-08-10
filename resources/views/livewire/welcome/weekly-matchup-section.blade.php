@@ -7,8 +7,8 @@
         <p class="text-primary/70 text-sm">Pick your winners before kickoff!</p>
     </div>
 
-    <div class="max-w-4xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="max-w-6xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @forelse($featuredGames as $game)
                 <div class="bg-white rounded-lg shadow-lg border border-primary/10 overflow-hidden hover:shadow-xl transition-shadow duration-300">
                     {{-- Game Header with Date --}}
@@ -27,44 +27,34 @@
                     </div>
 
                     {{-- Teams --}}
-                    <div class="p-4">
+                    <div class="p-6">
                         {{-- Away Team --}}
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center space-x-3">
-                                @if($game['away_team'] && $game['away_team']['logo_url'])
-                                    <img
-                                        src="{{ $game['away_team']['logo_url'] }}"
-                                        alt="{{ $game['away_team']['name'] }}"
-                                        class="w-8 h-8 object-contain"
-                                    />
-                                @endif
-                                <div>
-                                    <p class="font-bold text-sm">{{ $game['away_team']['name'] ?? 'TBD' }}</p>
-                                    <p class="text-xs text-primary/60">Away</p>
-                                </div>
-                            </div>
+                        <div class="flex items-center justify-center mb-6">
+                            @if($game['away_team'] && $game['away_team']['logo_url'])
+                                <img
+                                    src="{{ $game['away_team']['logo_url'] }}"
+                                    alt="{{ $game['away_team']['name'] }}"
+                                    class="w-16 h-16 object-contain mr-4"
+                                />
+                            @endif
+                            <p class="font-bold text-lg whitespace-nowrap overflow-hidden text-ellipsis">{{ $game['away_team']['name'] ?? 'TBD' }}</p>
                         </div>
 
                         {{-- VS --}}
-                        <div class="text-center mb-3">
-                            <span class="text-xs text-primary/60 font-medium">VS</span>
+                        <div class="text-center mb-6">
+                            <span class="text-lg text-primary/60 font-bold">VS</span>
                         </div>
 
                         {{-- Home Team --}}
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center space-x-3">
-                                @if($game['home_team'] && $game['home_team']['logo_url'])
-                                    <img
-                                        src="{{ $game['home_team']['logo_url'] }}"
-                                        alt="{{ $game['home_team']['name'] }}"
-                                        class="w-8 h-8 object-contain"
-                                    />
-                                @endif
-                                <div>
-                                    <p class="font-bold text-sm">{{ $game['home_team']['name'] ?? 'TBD' }}</p>
-                                    <p class="text-xs text-primary/60">Home</p>
-                                </div>
-                            </div>
+                        <div class="flex items-center justify-center mb-6">
+                            @if($game['home_team'] && $game['home_team']['logo_url'])
+                                <img
+                                    src="{{ $game['home_team']['logo_url'] }}"
+                                    alt="{{ $game['home_team']['name'] }}"
+                                    class="w-16 h-16 object-contain mr-4"
+                                />
+                            @endif
+                            <p class="font-bold text-lg whitespace-nowrap overflow-hidden text-ellipsis">{{ $game['home_team']['name'] ?? 'TBD' }}</p>
                         </div>
 
                         {{-- Call to Action --}}

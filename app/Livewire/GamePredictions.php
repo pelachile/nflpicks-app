@@ -259,6 +259,33 @@ class GamePredictions extends Component
         session()->flash('success', 'Tiebreaker prediction saved!');
     }
 
+    /**
+     * Refresh game data for real-time score updates
+     */
+    public function refreshScores()
+    {
+        $this->loadGames();
+        $this->checkPredictionStatus();
+    }
+
+    /**
+     * Check if any games are currently in progress to determine if we should poll
+     */
+    public function hasGamesInProgress()
+    {
+        $now = Carbon::now();
+        
+        return collect($this->games)->contains(function ($game) use ($now) {
+            $gameTime = Carbon::parse($game['date_time']);
+            $gameEndTime = $gameTime->copy()->addHours(4); // Games typically last ~3-4 hours
+            
+            // Game is in progress if it has started but not ended and not completed
+            return $now->gte($gameTime) && 
+                   $now->lte($gameEndTime) && 
+                   !in_array($game['status'], ['completed', 'final']);
+        });
+    }
+
     public function render()
     {
         return view('livewire.game-predictions')
