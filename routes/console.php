@@ -2,6 +2,15 @@
 
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
+use Illuminate\Support\Facades\Log;
+
+// TEMPORARY: Simple scheduler test that runs every minute
+Schedule::call(function () {
+    Log::info('Scheduler heartbeat', [
+        'timestamp' => now()->toISOString(),
+        'message' => 'Scheduler is running'
+    ]);
+})->everyMinute()->name('scheduler-heartbeat');
 
 // Process queued jobs only when needed - after team data is dispatched
 Schedule::command('queue:work --stop-when-empty --max-time=300')
