@@ -24,6 +24,15 @@ class FetchLiveScores extends Command
         $seasonTypeNames = [1 => 'preseason', 2 => 'regular season', 3 => 'postseason'];
         $seasonTypeName = $seasonTypeNames[$seasonType] ?? 'unknown';
 
+        // Log command execution start
+        Log::info("FetchLiveScores command started", [
+            'week' => $week,
+            'season' => $season,
+            'season_type' => $seasonType,
+            'timestamp' => now()->toISOString(),
+            'timezone' => config('app.timezone')
+        ]);
+
         $this->info("Fetching live scores for {$seasonTypeName} Week {$week}, {$season}...");
 
         $connector = new ESPNConnector();
@@ -103,6 +112,15 @@ class FetchLiveScores extends Command
             }
 
             $this->info("✅ Updated scores for {$updatedGames} games");
+            
+            // Log successful completion
+            Log::info("FetchLiveScores command completed successfully", [
+                'week' => $week,
+                'season' => $season,
+                'season_type' => $seasonType,
+                'updated_games' => $updatedGames,
+                'timestamp' => now()->toISOString()
+            ]);
             
             // If games are completed, trigger weekly scoring calculation
             $completedGames = Game::where('week', $week)
