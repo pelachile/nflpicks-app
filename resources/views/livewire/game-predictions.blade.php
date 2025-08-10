@@ -1,5 +1,6 @@
 <div class="max-w-6xl mx-auto p-6" 
-     @if($this->hasGamesInProgress()) wire:poll.30s="refreshScores" @endif>
+     {{-- TEMPORARY: Always poll for testing --}}
+     wire:poll.30s="refreshScores">
     <div class="bg-card rounded-lg shadow-md p-6 mb-6 text-center">
         <h1 class="text-3xl font-bold text-primary mb-4">
             NFL Week {{ $currentWeek }} Predictions
@@ -16,14 +17,13 @@
         @endif
 
         {{-- Live Updates Indicator --}}
-        @if($this->hasGamesInProgress())
-            <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4 flex items-center justify-center">
-                <div class="flex items-center space-x-2">
-                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span class="text-sm font-medium">Live updates enabled - Scores refresh every 30 seconds</span>
-                </div>
+        {{-- TEMPORARY: Always show for testing --}}
+        <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4 flex items-center justify-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-sm font-medium">Live updates enabled - Scores refresh every 30 seconds (TEST MODE)</span>
             </div>
-        @endif
+        </div>
     </div>
 
     {{-- Flash messages --}}
