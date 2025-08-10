@@ -19,34 +19,31 @@ Schedule::command('fetch:team-data')
     ->withoutOverlapping();
 
 // Fetch live scores during NFL game times (CDT)
-// Saturday: 12 PM - 12 AM CDT (every 15 minutes)
 Schedule::command('fetch:live-scores')
-    ->saturdays()
-    ->between('12:00', '23:59')
     ->everyFifteenMinutes()
-    ->timezone('America/Chicago')
-    ->withoutOverlapping();
-
-// Sunday: 12 PM - 12 AM CDT (every 15 minutes)
-Schedule::command('fetch:live-scores')
-    ->sundays()
-    ->between('12:00', '23:59')
-    ->everyFifteenMinutes()
-    ->timezone('America/Chicago')
-    ->withoutOverlapping();
-
-// Monday: 7 PM - 12 AM CDT (every 15 minutes)
-Schedule::command('fetch:live-scores')
-    ->mondays()
-    ->between('19:00', '23:59')
-    ->everyFifteenMinutes()
-    ->timezone('America/Chicago')
-    ->withoutOverlapping();
-
-// Thursday: 7 PM - 12 AM CDT (every 15 minutes)
-Schedule::command('fetch:live-scores')
-    ->thursdays()
-    ->between('19:00', '23:59')
-    ->everyFifteenMinutes()
-    ->timezone('America/Chicago')
+    ->when(function () {
+        $now = \Carbon\Carbon::now('America/Chicago');
+        
+        // Saturday: 12 PM - 12 AM CDT
+        if ($now->isSaturday() && $now->hour >= 12 && $now->hour <= 23) {
+            return true;
+        }
+        
+        // Sunday: 12 PM - 12 AM CDT
+        if ($now->isSunday() && $now->hour >= 12 && $now->hour <= 23) {
+            return true;
+        }
+        
+        // Monday: 7 PM - 12 AM CDT
+        if ($now->isMonday() && $now->hour >= 19 && $now->hour <= 23) {
+            return true;
+        }
+        
+        // Thursday: 7 PM - 12 AM CDT
+        if ($now->isThursday() && $now->hour >= 19 && $now->hour <= 23) {
+            return true;
+        }
+        
+        return false;
+    })
     ->withoutOverlapping();

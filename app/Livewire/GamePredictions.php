@@ -280,9 +280,11 @@ class GamePredictions extends Component
             $gameEndTime = $gameTime->copy()->addHours(4); // Games typically last ~3-4 hours
             
             // Game is in progress if it has started but not ended and not completed
-            return $now->gte($gameTime) && 
-                   $now->lte($gameEndTime) && 
-                   !in_array($game['status'], ['completed', 'final']);
+            $gameStarted = $now->gte($gameTime);
+            $gameNotEnded = $now->lte($gameEndTime);
+            $gameNotCompleted = !in_array($game['status'], ['completed', 'final']);
+            
+            return $gameStarted && $gameNotEnded && $gameNotCompleted;
         });
     }
 
