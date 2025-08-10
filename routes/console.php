@@ -22,40 +22,70 @@ Schedule::command('fetch:team-data')
 Schedule::command('fetch:live-scores')
     ->everyFifteenMinutes()
     ->when(function () {
-        // Always use CDT timezone for consistency
-        $now = \Carbon\Carbon::now('America/Chicago');
+        // Get server time and CDT time for comparison
+        $serverTime = \Carbon\Carbon::now();
+        $cdtTime = \Carbon\Carbon::now('America/Chicago');
         
         \Log::info('Schedule check', [
-            'time' => $now->format('Y-m-d H:i:s T'),
-            'day' => $now->format('l'),
-            'hour' => $now->hour,
-            'is_saturday' => $now->isSaturday(),
-            'is_sunday' => $now->isSunday(),
-            'is_monday' => $now->isMonday(),
-            'is_thursday' => $now->isThursday(),
+            'server_time' => $serverTime->format('Y-m-d H:i:s T'),
+            'cdt_time' => $cdtTime->format('Y-m-d H:i:s T'),
+            'cdt_day' => $cdtTime->format('l'),
+            'cdt_hour' => $cdtTime->hour,
+            'is_saturday' => $cdtTime->isSaturday(),
+            'is_sunday' => $cdtTime->isSunday(),
+            'is_monday' => $cdtTime->isMonday(),
+            'is_thursday' => $cdtTime->isThursday(),
         ]);
         
-        // Saturday: 12 PM - 12 AM CDT
+        // Use CDT time for all checks
+        $now = $cdtTime;
+        
+        // Saturday: 12 PM - 12 AM CDT (1 PM - 1 AM EDT)
         if ($now->isSaturday() && $now->hour >= 12 && $now->hour <= 23) {
-            \Log::info('Schedule: Running on Saturday', ['hour' => $now->hour]);
+            \Log::info('Schedule: Running on Saturday CDT', ['cdt_hour' => $now->hour]);
             return true;
         }
         
-        // Sunday: 12 PM - 12 AM CDT
+        // Sunday: 12 PM - 12 AM CDT (1 PM - 1 AM EDT)
         if ($now->isSunday() && $now->hour >= 12 && $now->hour <= 23) {
-            \Log::info('Schedule: Running on Sunday', ['hour' => $now->hour]);
+            \Log::info('Schedule: Running on Sunday CDT', ['cdt_hour' => $now->hour]);
             return true;
         }
         
-        // Monday: 7 PM - 12 AM CDT
+        // Monday: 7 PM - 12 AM CDT (8 PM - 1 AM EDT)
         if ($now->isMonday() && $now->hour >= 19 && $now->hour <= 23) {
-            \Log::info('Schedule: Running on Monday', ['hour' => $now->hour]);
+            \Log::info('Schedule: Running on Monday CDT', ['cdt_hour' => $now->hour]);
             return true;
         }
         
-        // Thursday: 7 PM - 12 AM CDT
+        // Thursday: 7 PM - 12 AM CDT (8 PM - 1 AM EDT)  
         if ($now->isThursday() && $now->hour >= 19 && $now->hour <= 23) {
-            \Log::info('Schedule: Running on Thursday', ['hour' => $now->hour]);
+            \Log::info('Schedule: Running on Thursday CDT', ['cdt_hour' => $now->hour]);
+            return true;
+        }
+        
+        // FALLBACK: Also check server local time in case timezone conversion fails
+        // Saturday: 1 PM - 1 AM EDT
+        if ($serverTime->isSaturday() && $serverTime->hour >= 13 && ($serverTime->hour <= 23 || $serverTime->hour == 0)) {
+            \Log::info('Schedule: Running on Saturday EDT fallback', ['edt_hour' => $serverTime->hour]);
+            return true;
+        }
+        
+        // Sunday: 1 PM - 1 AM EDT
+        if ($serverTime->isSunday() && $serverTime->hour >= 13 && ($serverTime->hour <= 23 || $serverTime->hour == 0)) {
+            \Log::info('Schedule: Running on Sunday EDT fallback', ['edt_hour' => $serverTime->hour]);
+            return true;
+        }
+        
+        // Monday: 8 PM - 1 AM EDT
+        if ($serverTime->isMonday() && $serverTime->hour >= 20 && ($serverTime->hour <= 23 || $serverTime->hour == 0)) {
+            \Log::info('Schedule: Running on Monday EDT fallback', ['edt_hour' => $serverTime->hour]);
+            return true;
+        }
+        
+        // Thursday: 8 PM - 1 AM EDT
+        if ($serverTime->isThursday() && $serverTime->hour >= 20 && ($serverTime->hour <= 23 || $serverTime->hour == 0)) {
+            \Log::info('Schedule: Running on Thursday EDT fallback', ['edt_hour' => $serverTime->hour]);
             return true;
         }
         
